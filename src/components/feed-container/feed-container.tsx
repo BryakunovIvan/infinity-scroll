@@ -1,24 +1,55 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { useEffect, useState } from "react";
-import { FeedItem } from "../feed-item";
 import { IImage } from "../../models/image";
 import { LazyFeedItem } from "../feed-item/lazy-feed-item";
+import { IntersectionComponent } from "../intersection-component";
 
-const getImages = () => {
-  return fetch("https://jsonplaceholder.typicode.com/photos").then((response) =>
-    response.json()
-  );
+const getImages = ({ page = 1, limit = 5000 }) => {
+  return fetch(
+    `https://jsonplaceholder.typicode.com/photos?_page=${page}&_limit=${limit}`
+  ).then((response) => response.json());
 };
+
+function debounce<T extends (...args: Parameters<T>) => void>(
+  fn: T,
+  timeout = 500
+) {
+  let timer: null | ReturnType<typeof setTimeout> = null;
+  return (...args: Parameters<T>) => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+
+    timer = setTimeout(() => {
+      fn(...args);
+    }, timeout);
+  };
+}
 
 export const FeedContainer = () => {
   const [images, setImages] = useState<IImage[]>([]);
+  const [page, setPage] = useState(1);
+
+  const debouncedGetImages = useCallback(
+    debounce((page: number, limit: number) => {
+      getImages({ page: page, limit }).then((res) => {
+        setPage(page + 1);
+        setImages((prevImages) => [...prevImages, ...res]);
+      });
+    }),
+    []
+  );
+
+  const handleLoading = () => {
+    debouncedGetImages(page, 10);
+  };
 
   useEffect(() => {
-    getImages().then(setImages);
+    debouncedGetImages(page, 10);
   }, []);
 
   return (
-    <div style={{ height: "1000px" }}>
+    <>
       {images.map((item) => (
         <LazyFeedItem
           alt={item.title}
@@ -28,6 +59,7 @@ export const FeedContainer = () => {
           text={item.title}
         ></LazyFeedItem>
       ))}
-    </div>
+      {!!images.length && <IntersectionComponent callBack={handleLoading} />}
+    </>
   );
 };
