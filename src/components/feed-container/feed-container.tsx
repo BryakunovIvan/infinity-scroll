@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { IImage } from "../../models/image";
 import { LazyFeedItem } from "../feed-item/lazy-feed-item";
 import { IntersectionComponent } from "../intersection-component";
+import { FeedItem } from "../feed-item";
 
 const getImages = ({ page = 1, limit = 5000 }) => {
   return fetch(
@@ -51,13 +52,13 @@ export const FeedContainer = () => {
   return (
     <>
       {images.map((item) => (
-        <LazyFeedItem
+        <FeedItem
           alt={item.title}
           key={item.id}
           imageURL={item.url}
           id={item.id}
           text={item.title}
-        ></LazyFeedItem>
+        ></FeedItem>
       ))}
       {!!images.length && <IntersectionComponent callBack={handleLoading} />}
     </>
