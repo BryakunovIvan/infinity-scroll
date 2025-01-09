@@ -4,6 +4,7 @@ import { IImage } from "../../models/image";
 import { LazyFeedItem } from "../feed-item/lazy-feed-item";
 import { IntersectionComponent } from "../intersection-component";
 import { FeedItem } from "../feed-item";
+import { VirtualizedScroll } from "../virtualized-scroll";
 
 const getImages = ({ page = 1, limit = 5000 }) => {
   return fetch(
@@ -51,16 +52,21 @@ export const FeedContainer = () => {
 
   return (
     <>
-      {images.map((item) => (
-        <FeedItem
-          alt={item.title}
-          key={item.id}
-          imageURL={item.url}
-          id={item.id}
-          text={item.title}
-        ></FeedItem>
-      ))}
-      {!!images.length && <IntersectionComponent callBack={handleLoading} />}
+      <VirtualizedScroll
+        items={images.map((item) => (
+          <FeedItem
+            alt={item.title}
+            key={item.id}
+            imageURL={item.url}
+            id={item.id}
+            text={item.title}
+          ></FeedItem>
+        ))}
+        itemHeight={700}
+        containerHeight={1200}
+      ></VirtualizedScroll>
+
+      {/* {!!images.length && <IntersectionComponent callBack={handleLoading} />} */}
     </>
   );
 };
