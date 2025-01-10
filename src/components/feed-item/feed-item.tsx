@@ -16,7 +16,7 @@ export const FeedItem = ({ imageURL, id, text, alt }: TFeedItemProps) => {
 
   return (
     <>
-      <h1>{text}</h1>
+      <h1 style={{ marginTop: 0 }}>{text}</h1>
       {isLoading && <h1>Loading...</h1>}
       {isError && <h1>ERROR</h1>}
       <img

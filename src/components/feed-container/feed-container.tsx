@@ -43,6 +43,7 @@ export const FeedContainer = () => {
   );
 
   const handleLoading = () => {
+    //Заменить debounce на trottle
     debouncedGetImages(page, 10);
   };
 
@@ -53,6 +54,8 @@ export const FeedContainer = () => {
   return (
     <>
       <VirtualizedScroll
+        buffer={2000}
+        onScroll={handleLoading}
         items={images.map((item) => (
           <FeedItem
             alt={item.title}

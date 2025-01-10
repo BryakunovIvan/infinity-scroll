@@ -1,39 +1,48 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type TProps = {
   items: React.ReactElement[];
   itemHeight: number;
-  containerHeight: number;
+  containerHeight?: number;
+  onScroll?: () => void;
+  buffer?: number;
 };
 
 export const VirtualizedScroll = ({
+  onScroll = () => {},
   items,
   itemHeight,
-  containerHeight,
+  containerHeight = 600,
+  buffer = 200,
 }: TProps) => {
   const [scrollTop, setScrollTop] = useState(0);
+  const [scrollHeight, setScrollHeight] = useState(0);
 
   const startIndex = Math.floor(scrollTop / itemHeight);
   const endIndex = Math.min(
-    startIndex + Math.ceil(containerHeight / itemHeight),
+    startIndex + Math.ceil(containerHeight / itemHeight) + 3,
     items.length
   );
 
   const visibleItems = items.slice(startIndex, endIndex);
-  const invisibleItemsHeight =
-    (startIndex + visibleItems.length - endIndex) * itemHeight;
 
   const handleScroll: React.UIEventHandler<HTMLDivElement> = (event) => {
     // @ts-ignore
     setScrollTop(event.target.scrollTop);
-
     // @ts-ignore
-    console.log(event.target.scrollTop);
+    setScrollHeight(event.target.scrollHeight);
   };
+
+  useEffect(() => {
+    console.log(scrollHeight - containerHeight - buffer, scrollTop);
+    if (scrollHeight - containerHeight - buffer < scrollTop) {
+      onScroll();
+    }
+  }, [scrollTop, scrollHeight]);
 
   return (
     <div
-      style={{ height: `${containerHeight}px`, overflowY: "scroll" }}
+      style={{ overflowY: "scroll", height: containerHeight }}
       onScroll={handleScroll}
     >
       <div style={{ height: `${items.length * itemHeight}px` }}>
@@ -48,11 +57,6 @@ export const VirtualizedScroll = ({
             <div style={{ height: `${itemHeight}px` }}>{item}</div>
           ))}
         </div>
-        <div
-          style={{
-            height: `${invisibleItemsHeight}px`,
-          }}
-        />
       </div>
     </div>
   );
