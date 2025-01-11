@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 
 type TProps = { callBack: (entry: IntersectionObserverEntry) => void };
 
+/** Компонент доскролив до которого вызовется переданный колбек */
 export const IntersectionComponent = ({ callBack }: TProps) => {
   const ref = useRef(null);
 
